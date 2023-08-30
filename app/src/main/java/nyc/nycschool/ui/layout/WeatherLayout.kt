@@ -2,12 +2,8 @@ package nyc.nycschool.ui.layout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -21,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import nyc.nycschool.app.ERROR_MESSAGE
-import nyc.nycschool.viewmodel.WeatherSchoolViewModel
+import nyc.nycschool.viewmodel.WeatherViewModel
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -30,7 +26,7 @@ import nyc.nycschool.ui.component.DisplayLoadingSpinner
 import nyc.nycschool.ui.component.DisplayMessage
 
 @Composable
-fun WeatherLayout(navController: NavHostController, viewModel: WeatherSchoolViewModel) {
+fun WeatherLayout(navController: NavHostController, viewModel: WeatherViewModel) {
     if (viewModel.loading) {
         DisplayLoadingSpinner()
     } else {
@@ -41,7 +37,7 @@ fun WeatherLayout(navController: NavHostController, viewModel: WeatherSchoolView
             if (viewModel.apiCallError) {
                 DisplayMessage(ERROR_MESSAGE)
             } else {
-                DisplayList(navController, viewModel.snapshotStateList, viewModel)
+                DisplayList(navController, viewModel)
             }
         }
     }
@@ -50,8 +46,7 @@ fun WeatherLayout(navController: NavHostController, viewModel: WeatherSchoolView
 @Composable
 fun DisplayList(
     navController: NavHostController,
-    aList: SnapshotStateList<WeatherModel>,
-    viewModel: WeatherSchoolViewModel
+    viewModel: WeatherViewModel
 ) {
     Column {
         TextField(
@@ -81,46 +76,30 @@ fun DisplayList(
             Text(text = "Search", color = Color.White)
         }
 
-        LazyColumn(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        ) {
-            items(
-                items = aList,
-                itemContent = {
-                    DisplayOneSchool(navController, it, viewModel)
-                })
-        }
+        DisplayWeatherCondition(navController, viewModel)
     }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun DisplayOneSchool(
+fun DisplayWeatherCondition(
     navHostController: NavHostController,
-    schoolModel: WeatherModel,
-    viewModel: WeatherSchoolViewModel
+    viewModel: WeatherViewModel
 ) {
-
     Card(
         modifier = Modifier
             .padding(8.dp),
     ) {
         Row {
-            GlideImage(model = viewModel.imageUrl, contentDescription = "")
-//            Image(
-//                painter = rememberGlidePainter(request = viewModel.imageUrl),
-//                contentDescription = "Image",
-//                modifier = Modifier.fillMaxSize(),
-//                contentScale = ContentScale.Fit
-//            )
-            Text(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f), text = schoolModel.weatherCondition
-            )
+            viewModel.weatherModel?.let {
+                GlideImage(model = viewModel.imageUrl, contentDescription = "")
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f), text = it.weatherCondition
+                )
+            }
         }
     }
 }

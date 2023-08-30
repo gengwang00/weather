@@ -16,13 +16,13 @@ import nyc.nycschool.R
 import nyc.nycschool.app.theme.NycTheme
 import nyc.nycschool.ui.component.ToolbarWidget
 import nyc.nycschool.ui.navigation.NavigationSetup
-import nyc.nycschool.viewmodel.WeatherSchoolViewModel
+import nyc.nycschool.viewmodel.WeatherViewModel
 
 @AndroidEntryPoint
 class WeatherActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val nycViewModel: WeatherSchoolViewModel by viewModels()
+        val nycViewModel: WeatherViewModel by viewModels()
         setContent {
             NycTheme {
                 Surface(
@@ -40,7 +40,7 @@ class WeatherActivity : ComponentActivity() {
 }
 
 @Composable
-fun LocationPermissionCheck(nycViewModel:WeatherSchoolViewModel) {
+fun LocationPermissionCheck(nycViewModel:WeatherViewModel) {
 //    val context = LocalContext.current
 //    val locationPermissionState = remember {
 //        ContextCompat.checkSelfPermission(

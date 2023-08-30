@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.constraintlayout.motion.widget.Debug.getState
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -24,12 +23,12 @@ import javax.inject.Inject
 const val PREFER_KEY = "SEARCH_CITY"
 
 @HiltViewModel
-class WeatherSchoolViewModel @Inject constructor(
+class WeatherViewModel @Inject constructor(
     private val mainRepository: MainRepository,
     private val application: Application
 ) : ViewModel(), DefaultLifecycleObserver {
 
-    val snapshotStateList = SnapshotStateList<WeatherModel>()
+    var weatherModel: WeatherModel? by mutableStateOf(null)
     var imageUrl by mutableStateOf("")
     var inputCityField by mutableStateOf("")
     var inputStateField by mutableStateOf("")
@@ -86,7 +85,6 @@ class WeatherSchoolViewModel @Inject constructor(
 
     private fun loadWeather(query: String) = viewModelScope.launch {
         loading = true
-        snapshotStateList.clear()
 
         when (val cood = mainRepository.getLanLon(query)) {
             is NetworkResult.Success -> {
@@ -108,9 +106,9 @@ class WeatherSchoolViewModel @Inject constructor(
                 result.data?.let { data ->
                     if (data.weatherModel.isNotEmpty()) {
                         saveData(city)
-                        snapshotStateList.addAll(data.weatherModel)
-                        val icon = data.weatherModel[0].icon
-                        imageUrl = "https://openweathermap.org/img/wn/".plus(icon).plus("@2x.png")
+                        val weather = data.weatherModel[0]
+                        weatherModel = weather
+                        imageUrl = "https://openweathermap.org/img/wn/".plus(weather.icon).plus("@2x.png")
                     } else {
                         apiCallError = true
                     }
