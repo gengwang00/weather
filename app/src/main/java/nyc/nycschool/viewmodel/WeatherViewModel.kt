@@ -53,13 +53,8 @@ class WeatherViewModel @Inject constructor(
             Manifest.permission.ACCESS_FINE_LOCATION
         )
 
-        val coarseLocation = ContextCompat.checkSelfPermission(
-            application,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-
         isAppLocationPermissionGranted =
-            bgLocation == PackageManager.PERMISSION_GRANTED && coarseLocation === PackageManager.PERMISSION_GRANTED
+            bgLocation == PackageManager.PERMISSION_GRANTED
     }
 
     private fun loadSavedCity() {
