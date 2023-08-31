@@ -35,7 +35,7 @@ class WeatherViewModel @Inject constructor(
     var inputCountryField by mutableStateOf("")
     var loading: Boolean by mutableStateOf(false)
     var apiCallError: Boolean by mutableStateOf(false)
-    var isAppLocationPermissionGranted : Boolean by mutableStateOf(true)
+    var isAppLocationPermissionGranted: Boolean by mutableStateOf(true)
 
     private val sharedPreferences =
         application.getSharedPreferences("my_shared_prefs", Context.MODE_PRIVATE)
@@ -73,7 +73,8 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    private fun getState() = if(inputCountryField.equals("USA", ignoreCase = true)) inputStateField else ""
+    private fun getState() =
+        if (inputCountryField.equals("USA", ignoreCase = true)) inputStateField else ""
 
     fun getWeather() = viewModelScope.launch {
         val query = inputCityField.plus(",")
@@ -89,9 +90,10 @@ class WeatherViewModel @Inject constructor(
         when (val cood = mainRepository.getLanLon(query)) {
             is NetworkResult.Success -> {
                 cood.data?.let { list ->
-                    if(list.isNotEmpty()) {
+                    if (list.isNotEmpty()) {
                         val lanlon = list[0]
-                        getWeatherForecast(lanlon.lat, lanlon.lon, query)
+                        getWeatherForecast(lanlon.lat, lanlon.lon)
+                        saveData(query)
                     }
                 }
             }
@@ -100,27 +102,21 @@ class WeatherViewModel @Inject constructor(
         loading = false
     }
 
-    private suspend fun getWeatherForecast(lat: Double, lon: Double, city: String) {
-        when (val result = mainRepository.getWeather(lat, lon)) {
-            is NetworkResult.Success -> {
-                result.data?.let { data ->
-                    if (data.weatherModel.isNotEmpty()) {
-                        saveData(city)
-                        val weather = data.weatherModel[0]
-                        weatherModel = weather
-                        imageUrl = "https://openweathermap.org/img/wn/".plus(weather.icon).plus("@2x.png")
-                    } else {
-                        apiCallError = true
-                    }
-                }
-            }
-            else -> {
+    suspend fun getWeatherForecast(lat: Double, lon: Double) {
+        val result = mainRepository.getWeather(lat, lon)
+        result?.let {
+            if (it.weatherModel.isNotEmpty()) {
+                val weather = it.weatherModel[0]
+                weatherModel = weather
+                imageUrl =
+                    "https://openweathermap.org/img/wn/".plus(weather.icon).plus("@2x.png")
+            } else {
                 apiCallError = true
             }
         }
     }
 
-    private fun saveData( value: String) {
+    private fun saveData(value: String) {
         sharedPreferences.edit().putString(PREFER_KEY, value).apply()
     }
 

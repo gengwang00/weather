@@ -33,8 +33,8 @@ class MainRepository @Inject constructor(
     private fun <T> error(errorMessage: String): NetworkResult<T> =
         NetworkResult.Error("Api call failed $errorMessage")
 
-    suspend fun getWeather(lat: Double, lon: Double): NetworkResult<WeatherForecastModel> {
-        return withContext(defaultDispatcher) { apiCall { apiService.getWeather(lat, lon) } }
+    suspend fun getWeather(lat: Double, lon: Double): WeatherForecastModel? {
+        return withContext(defaultDispatcher) {  apiService.getWeather(lat, lon).body()  }
     }
 
     suspend fun getLanLon( city: String): NetworkResult<List<LatLonModel>> {
